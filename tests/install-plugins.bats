@@ -13,7 +13,7 @@ teardown() {
 
 @test "[${SUT_DESCRIPTION}] plugins are installed with install-plugins.sh" {
   local custom_sut_image="$(get_test_image)"
-  run docker_build_child "${SUT_IMAGE}" "${custom_sut_image}" "${BATS_TEST_DIRNAME}/install-plugins" --no-cache
+  run docker_build_child "${SUT_IMAGE}" "${custom_sut_image}" "${BATS_TEST_DIRNAME}/install-plugins"
   assert_success
   refute_line --partial 'Skipping already installed dependency'
 
@@ -46,7 +46,7 @@ teardown() {
   local custom_ref=/var/lib/jenkins/ref
 
   # Build a custom image to validate the build time behavior
-  run docker_build_child "${SUT_IMAGE}" "${custom_sut_image}" "${BATS_TEST_DIRNAME}/install-plugins/ref" --build-arg REF="${custom_ref}" --no-cache
+  run docker_build_child "${SUT_IMAGE}" "${custom_sut_image}" "${BATS_TEST_DIRNAME}/install-plugins/ref" --build-arg REF="${custom_ref}"
   assert_success
   refute_line --partial 'Skipping already installed dependency'
 
@@ -69,8 +69,10 @@ teardown() {
   local custom_sut_image="$(get_test_image)"
 
   # Then proceed with child
+  docker image ls
   run docker_build_child "${SUT_IMAGE}" "${custom_sut_image}" "${BATS_TEST_DIRNAME}/install-plugins/pluginsfile"
   assert_success
+  docker image ls
   refute_line --partial 'Skipping already installed dependency'
   # replace DOS line endings \r\n
   run bash -c "docker run --rm ${custom_sut_image} ls --color=never -1 /var/jenkins_home/plugins | tr -d '\r'"
@@ -208,7 +210,7 @@ teardown() {
 @test "[${SUT_DESCRIPTION}] Use a custom jenkins.war" {
   local custom_sut_image="$(get_test_image)"
   # Build the image using the right Dockerfile setting a new war with JENKINS_WAR env and with a weird plugin inside
-  run docker_build_child "${SUT_IMAGE}" "${custom_sut_image}" "${BATS_TEST_DIRNAME}/install-plugins/custom-war" --no-cache
+  run docker_build_child "${SUT_IMAGE}" "${custom_sut_image}" "${BATS_TEST_DIRNAME}/install-plugins/custom-war"
   assert_success
   # Assert the weird plugin is there
   assert_output --partial 'my-happy-plugin:1.1'
