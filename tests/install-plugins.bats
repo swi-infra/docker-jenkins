@@ -12,7 +12,8 @@ teardown() {
 }
 
 @test "[${SUT_DESCRIPTION}] plugins are installed with install-plugins.sh" {
-  local custom_sut_image="$(get_test_image)"
+  local custom_sut_image
+  custom_sut_image="$(get_test_image)"
   run docker_build_child "${SUT_IMAGE}" "${custom_sut_image}" "${BATS_TEST_DIRNAME}/install-plugins"
   assert_success
   refute_line --partial 'Skipping already installed dependency'
@@ -42,8 +43,9 @@ teardown() {
 }
 
 @test "[${SUT_DESCRIPTION}] plugins are installed with install-plugins.sh with non-default REF" {
-  local custom_sut_image="$(get_test_image)"
-  local custom_ref=/var/lib/jenkins/ref
+  local custom_sut_image custom_ref
+  custom_sut_image="$(get_test_image)"
+  custom_ref=/var/lib/jenkins/ref
 
   # Build a custom image to validate the build time behavior
   run docker_build_child "${SUT_IMAGE}" "${custom_sut_image}" "${BATS_TEST_DIRNAME}/install-plugins/ref" --build-arg REF="${custom_ref}"
@@ -66,13 +68,12 @@ teardown() {
 }
 
 @test "[${SUT_DESCRIPTION}] plugins are installed with install-plugins.sh from a plugins file" {
-  local custom_sut_image="$(get_test_image)"
+  local custom_sut_image
+  custom_sut_image="$(get_test_image)"
 
   # Then proceed with child
-  docker image ls
   run docker_build_child "${SUT_IMAGE}" "${custom_sut_image}" "${BATS_TEST_DIRNAME}/install-plugins/pluginsfile"
   assert_success
-  docker image ls
   refute_line --partial 'Skipping already installed dependency'
   # replace DOS line endings \r\n
   run bash -c "docker run --rm ${custom_sut_image} ls --color=never -1 /var/jenkins_home/plugins | tr -d '\r'"
@@ -98,7 +99,7 @@ teardown() {
 }
 
 @test "[${SUT_DESCRIPTION}] plugins are getting upgraded but not downgraded" {
-  local custom_sut_image_first custom_sut_image_second
+  local custom_sut_image_first custom_sut_image_second volume_name
   custom_sut_image_first="$(get_test_image)"
   custom_sut_image_second="${custom_sut_image_first}-2"
 
@@ -202,7 +203,8 @@ teardown() {
 }
 
 @test "[${SUT_DESCRIPTION}] plugins are installed with install-plugins.sh and no war" {
-  local custom_sut_image="$(get_test_image)"
+  local custom_sut_image
+  custom_sut_image="$(get_test_image)"
   run docker_build_child "${SUT_IMAGE}" "${custom_sut_image}" "${BATS_TEST_DIRNAME}/install-plugins/no-war"
   assert_success
 }
